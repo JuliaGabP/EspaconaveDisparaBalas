@@ -1,10 +1,9 @@
 import sys
-from time import sleep
-
 import pygame
-
+from time import sleep
 from settings import Settings
 from game_stats import GameStats
+from button import Button
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
@@ -31,8 +30,11 @@ class AlienInvasion:
         
         self._create_fleet()
         
-        # Inicializa Invasão Alienígena em um estado ativo
-        self.game_active = True
+        # Inicializa Invasão Alienígena em um estado inativo
+        self.game_active = False
+        
+        # Cria o botão Play
+        self.play_button = Button(self, "Play")
         
     def run_game(self):
         """Inicia o loop principal do jogo"""
@@ -55,6 +57,28 @@ class AlienInvasion:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_button(mouse_pos)
+    
+    def _check_play_button(self, mouse_pos):
+        """Inicia um jogo novo quando o jogador clica em Play"""
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.game_active:
+            # Redefine as estatísticas do jogo
+            self.stats.reset_stats()
+            self.game_active = True
+            
+            # Descarta quaisquer projéteis e alienígenas restantes
+            self.bullets.empty()
+            self.aliens.empty()
+            
+            # Cria uma frota nova e centralizada a espaçonave
+            self._create_fleet()
+            self.ship.center_ship()
+            
+            # Oculta o cursor do mouse
+            pygame.mouse.set_visible(False)
     
     def _check_keydown_events(self, event):
         """Responde teclas pressionadas"""
@@ -122,6 +146,7 @@ class AlienInvasion:
         
         else:
             self.game_active = False
+            pygame.mouse.set_visible(True)
     
     def _update_aliens(self):
         """Verifica se a frota está na borda e, em seguida, atualiza as posições"""
@@ -188,6 +213,11 @@ class AlienInvasion:
             bullet.draw_bullet()
         self.ship.blitme()
         self.aliens.draw(self.screen)
+        
+        # Desenha o botão Play se o jogo estiver inativo
+        if not self.game_active:
+            self.play_button.draw_button()
+        
         pygame.display.flip()
 
 
