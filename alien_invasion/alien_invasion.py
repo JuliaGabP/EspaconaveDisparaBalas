@@ -65,20 +65,25 @@ class AlienInvasion:
         """Inicia um jogo novo quando o jogador clica em Play"""
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if button_clicked and not self.game_active:
-            # Redefine as estatísticas do jogo
-            self.stats.reset_stats()
-            self.game_active = True
-            
-            # Descarta quaisquer projéteis e alienígenas restantes
-            self.bullets.empty()
-            self.aliens.empty()
-            
-            # Cria uma frota nova e centralizada a espaçonave
-            self._create_fleet()
-            self.ship.center_ship()
-            
-            # Oculta o cursor do mouse
-            pygame.mouse.set_visible(False)
+            self.settings.initialize_dynamic_settings()
+            self._start_game()
+    
+    def _start_game(self):
+        """Inicia um novo jogo"""
+        # Redefine as estatísticas do jogo
+        self.stats.reset_stats()
+        self.game_active = True
+
+        # Descarta quaisquer projéteis e alienígenas restantes
+        self.bullets.empty()
+        self.aliens.empty()
+
+        # Cria uma frota nova e centraliza a espaçonave
+        self._create_fleet()
+        self.ship.center_ship()
+
+        # Oculta o cursor do mouse
+        pygame.mouse.set_visible(False)
     
     def _check_keydown_events(self, event):
         """Responde teclas pressionadas"""
@@ -90,6 +95,9 @@ class AlienInvasion:
             sys.exit()
         elif event.key == pygame.K_SPACE:
             self._fire_bullet()
+        elif event.key == pygame.K_p:
+            if not self.game_active:
+                self._start_game()    
             
     def _check_keyup_events(self, event):
         """Responde teclas soltas"""
@@ -126,6 +134,7 @@ class AlienInvasion:
             # Destrói os projéteis existentes e cria uma frota nova
             self.bullets.empty()
             self._create_fleet()
+            self.settings.increase_speed()
             
     def _ship_hit(self):
         """Responde à espaçonave sendo abatida por um alienígena"""
