@@ -28,6 +28,11 @@ class Button:
         self.msg_image_rect = self.msg_image.get_rect()
         self.msg_image_rect.center = self.rect.center
         
+    def update_position(self, y_offset):
+        """Atualiza a posição vertical do botão"""
+        self.rect.y = y_offset
+        self.msg_image_rect.center = self.rect.center
+    
     def draw_button(self):
         """Desenha o botão em branco e depois desenhe a mensagem"""
         self.screen.fill(self.button_color, self.rect)
